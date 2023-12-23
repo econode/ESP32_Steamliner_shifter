@@ -15,9 +15,9 @@
 #include <string>
 
 // PIN Defintions
-#define PIN_BUTTON_UP 1
-#define PIN_BUTTON_DOWN 2
-#define PIN_SHIFTER_SERVO 3
+#define PIN_BUTTON_UP 12
+#define PIN_BUTTON_DOWN 13
+#define PIN_SHIFTER_SERVO 14
 #define BUTTON_DEBOUNCE_MS 50
 
 #define NVM_NAME_SPACE "AUTOSHIFTER"
