@@ -9,8 +9,8 @@ VSCode with PlatformIO extension
 Connect to ESP32 WiFi access point.
 Captive portal should redirect to 192.168.4.1 ,if not manually enter http://192.168.4.1 into your browser.
 
-**Screenshot from SmartPhone##
-![SmartPhone screenshot of shifter](docs/images/shifter_screenshot_19-12-2023.png)
+**Screenshot from SmartPhone**
+![SmartPhone screenshot of shifter](docs/images/shifter_screenshot_19-12-2023.png | width=150)
 
 ## Change internal web server SSID / Password 
 ```C
