@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Auto shifter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" type="text/css" href="/style.css">
+  <script src="/shifter.js"></script>
+  <script>
+    const hasFormUpdated = %hasFormUpdated%;
+    const hasFromDefaults = %hasFromDefaults%;
+  </script>
+</head>
+<body>
+    <h1>Auto Shifter</h1>
+    <div class="updatedMessage" id="updatedMessage">
+      <p>Paramaters updated</p>
+    </div>
+    <div class="defaultsMessage" id="defaultsMessage">
+      <p>Defaults applied</p>
+    </div>
+    <form id="shifterForm" method="post" action="/index.html">
+      <table>
+        <tr>
+          <td>
+            <label for="servoUpDegrees">Servo up degrees:&nbsp</label>
+          </td>
+          <td>
+            <input type="number" name="servoUpDegrees" id="servoUpDegrees" value="%valueServoUpDegrees%" min="0" max="360" style="width:60px;">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label for="">Servo neutral degrees:&nbsp</label>
+          </td>
+          <td>
+            <input type="number" name="servoNeutralDegrees" id="servoNeutralDegrees" value="%valueServoNeutralDegrees%" min="0" max="360" style="width:60px;">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label for="">Servo mid point degrees:&nbsp</label>
+          </td>
+          <td>
+            <input type="number" name="servoMidPointDegrees" id="servoMidPointDegrees" value="%valueServoMidPointDegrees%" min="0" max="360" style="width:60px;">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label for="">Servo down degrees:&nbsp</label>
+          </td>
+          <td>
+            <input type="number" name="servoDownDegrees" id="servoDownDegrees" value="%valueServoDownDegrees%" min="0" max="360" style="width:60px;">
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <button id="submitButton" type="submit">Update</button>
+          </td>
+        </tr>
+      </table>
+      <div id="spinnerDiv" class="loader">Loading...</div>
+    </form>
+    <br />
+    <div class="gearPositionTitle">Gear position:</div>
+    <table id="gearboxPosition">
+      <tr>
+        <td id="gb1">1</td>
+        <td id="gbN" class="gbSelected">N</td>
+        <td id="gb2">2</td>
+        <td id="gb3">3</td>
+        <td id="gb4">4</td>
+        <td id="gb5">5</td>
+        <td id="gb6">6</td>
+      </tr>
+    </table>
+    <br />
+    <a href="/setdefaults" style="float: left;">Set defaults</a>
+</body>
+</html>
