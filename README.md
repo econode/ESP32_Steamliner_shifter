@@ -10,7 +10,7 @@ Long press on up when in 1st gear to 'half change' into neutral.
 
 The gearbox shifter is connected via a linkage to a servo motor.
 
-Paramaters need to be adjusted for this process to work smoothly, most notibly the servo positons required for a gear change.
+Paramaters need to be adjusted for this process to work smoothly, most notably the servo positons required for a gear change.
 
 These paramaters are set through the ESP32's WiFi interface. So the whole process can be done trackside.
 

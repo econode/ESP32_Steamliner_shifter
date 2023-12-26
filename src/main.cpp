@@ -68,6 +68,10 @@ String templateProcessor(const String& paramName){
   if(paramName == "valueServoNeutralDegrees"){
     return String(shifterState.neutralDegrees);
   }
+  if(paramName == "wsGatewayAddr"){
+    // normally ws://192.168.4.1/ws
+    return String("ws://") + ip_address.toString() + String("/ws");
+  }
   if(paramName == "valueServoMidPointDegrees"){
     return String(shifterState.midPointDegrees);
   }

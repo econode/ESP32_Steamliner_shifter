@@ -1,6 +1,5 @@
 window.addEventListener('load', handleOnLoad);
 
-var gateway = 'ws://192.168.4.1/ws';
 var websocket;
 
 function handleOnLoad(event) {
@@ -25,8 +24,9 @@ function handleOnSubmit(event){
 }
 
 function initWebSocket() {
-    console.log('WS: Trying to open a WebSocket connection...');
-    websocket = new WebSocket(gateway);
+    // wsGatewayAddr comes from template / index.html
+    console.log('WS: Trying to open a WebSocket connection to '+ wsGatewayAddr );
+    websocket = new WebSocket(wsGatewayAddr);
     websocket.onopen    = onOpen;
     websocket.onclose   = onClose;
     websocket.onmessage = onMessage;
