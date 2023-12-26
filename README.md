@@ -3,7 +3,7 @@
 ESP32StreamlinerShifter WiFi enabled gear shifter for streamliner motorcycle.
 Written in Arduino C for the ESP32 embeded microcontroller.
 
-The function of the gear shifter is to change through the gears on a landspeed stream liner motorcycle.
+The function of the gear shifter is to change through the gears on a landspeed streamliner motorcycle.
 ~1 second press on 'up' button to change up a gear, ~1 second press on 'down' button to change down a gear.
 
 Long press on up when in 1st gear to 'half change' into neutral.
@@ -30,6 +30,7 @@ This code is meant to be a simple working example of using the following technol
 * * HTML Template processing
 * * Processing HTML input forms
 * * Async HTML5 Web Sockets
+* Arduino JSON
 * Storing paramaters in non volatile NVS flash
 * Interrupt driven button debouncing
 * Servo control
@@ -59,7 +60,7 @@ You will need to format the ESP32's flash partition system and upload the little
 
 Each time you edit any of the files in project/data you will need to reflash the ESP32.
 
-Select PlatformIO icon in the left pain then click on "Upload Filesystem Image".
+Select PlatformIO icon in the left pain then click Project Tasks / Platform / Upload Filesystem Image.
 
 ![Screenshot upload file system](docs/images/upload_file_system.png)
 

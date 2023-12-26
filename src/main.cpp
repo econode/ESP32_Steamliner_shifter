@@ -11,6 +11,7 @@
 #include <Preferences.h>
 #include <ESP32Servo.h>
 #include "LittleFS.h"
+#include <ArduinoJson.h>
 #include <cstring>
 #include <string>
 
@@ -30,13 +31,15 @@ Preferences preferences;
 
 // Forward declerations
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
-void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
+void wsOnEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 
 const char* wifi_ssid = WIFI_SSID;
 const char* wifi_password = WIFI_PASSWORD;
 IPAddress ip_address;
 DNSServer dnsServer;
 AsyncWebServer server(80);
+AsyncWebSocket ws("/ws");
+StaticJsonDocument<2048> json_tx;
 
 
 struct shifterState_t {
@@ -156,6 +159,20 @@ void server_routes(){
 
   // Serve static files
   server.serveStatic("/", LittleFS,"/html/");
+
+    // Websockets init.
+  ws.onEvent(wsOnEvent);
+  server.addHandler(&ws);
+}
+
+void wsSendGearUpdate(){
+  char buffer[1000];
+  json_tx.clear();
+  json_tx["messageType"] = "gearPosition";
+  json_tx["payload"]["currentGearPosition"] = &shifterState.currentGearPosition;
+  size_t lenJson = serializeJson(json_tx, buffer);
+  ws.textAll(buffer,lenJson);
+  // Serial.printf("WS TX-> JSON %s\n",buffer);
 }
 
 void setup(){
@@ -185,5 +202,22 @@ void setup(){
 void loop(){
   dnsServer.processNextRequest();
   delay(50);
+}
 
+void wsOnEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
+ void *arg, uint8_t *data, size_t len) {
+  switch (type) {
+    case WS_EVT_CONNECT:
+      Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+      break;
+    case WS_EVT_DISCONNECT:
+      Serial.printf("WebSocket client #%u disconnected\n", client->id());
+      break;
+    case WS_EVT_DATA:
+      // handleWebSocketMessage(arg, data, len);
+      break;
+    case WS_EVT_PONG:
+    case WS_EVT_ERROR:
+      break;
+  }
 }
