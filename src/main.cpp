@@ -14,6 +14,7 @@
 #include <ArduinoJson.h>
 #include <cstring>
 #include <string>
+#include <esp_task_wdt.h>
 
 // PIN Defintions
 #define PIN_BUTTON_UP 12
@@ -24,6 +25,9 @@
 #define NVM_NAME_SPACE "AUTOSHIFTER"
 #define WIFI_SSID "AutoShifter"
 #define WIFI_PASSWORD "123456789"
+
+// Hardware watchdog timeout in seconds
+#define WDT_TIMEOUT 5
 
 
 // NVM / Preferences
@@ -81,7 +85,8 @@ String templateProcessor(const String& paramName){
   if( paramName == "hasFormUpdated" ){
     bool hasFormUpdated = shifterState.hasFormUpdated;
     shifterState.hasFormUpdated = false;
-    return  hasFormUpdated?"true":"false";
+    // return  hasFormUpdated?"true":"false";
+    return String( hasFormUpdated );
   }
   if( paramName == "hasFromDefaults" ){
     bool hasFromDefaults = shifterState.hasFromDefaults;
@@ -180,6 +185,8 @@ void wsSendGearUpdate(){
 }
 
 void setup(){
+  esp_task_wdt_init(WDT_TIMEOUT, true);
+  esp_task_wdt_add(NULL);
   Serial.begin(115200);
   preferences.begin( NVM_NAME_SPACE, false);
   nvsRead();
@@ -204,8 +211,10 @@ void setup(){
 
 
 void loop(){
+  esp_task_wdt_reset();
   dnsServer.processNextRequest();
   delay(50);
+
 }
 
 void wsOnEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
