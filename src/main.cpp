@@ -1,9 +1,3 @@
-// Example see https://www.hackster.io/davidefa/esp32-lora-mesh-1-the-basics-3a0920
-// TGO V32 Pinout https://github.com/umbm/TTGO-LoRa32-V2.1-T3_V1.6
-
-// The unit has an Up and Down button. 
-// Up goes up, Down goes down and if you are in 1st a long press will go to neutral.
-
 #include <DNSServer.h>
 #include <WiFi.h>
 #include <AsyncTCP.h>
@@ -15,6 +9,7 @@
 #include <cstring>
 #include <string>
 #include <esp_task_wdt.h>
+#include <smartButton.h>
 
 // PIN Defintions
 #define PIN_BUTTON_UP 12
@@ -28,6 +23,13 @@
 
 // Hardware watchdog timeout in seconds
 #define WDT_TIMEOUT 5
+
+// Servo Object
+Servo myservo;
+
+// Smart button object
+smartButton up_button(PIN_BUTTON_UP,INPUT_PULLUP,50);
+smartButton down_button(PIN_BUTTON_DOWN,INPUT_PULLUP,50);
 
 
 // NVM / Preferences
@@ -45,7 +47,6 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 StaticJsonDocument<2048> json_tx;
 
-
 struct shifterState_t {
   bool hasFormUpdated = false;
   bool hasFromDefaults = false;
@@ -57,7 +58,7 @@ struct shifterState_t {
   uint8_t neutralDegrees;
   uint8_t midPointDegrees;
   uint8_t downDegrees;
-  char currentGearPosition = 'N';
+  uint8_t currentGearPositonId = 2; // Gear positon #2 = neutral
 };
 shifterState_t shifterState;
 
@@ -138,6 +139,43 @@ void nvsRead(){
   shifterState.downDegrees = preferences.getUChar("downDegrees");
 }
 
+void wsSendGearUpdate(){
+  char buffer[1000];
+  String gearPos = String("1N234567").substring(shifterState.currentGearPositonId-1,shifterState.currentGearPositonId);
+  json_tx.clear();
+  json_tx["messageType"] = "gearPosition";
+  json_tx["payload"]["currentGearPosition"] = gearPos;
+  size_t lenJson = serializeJson(json_tx, buffer);
+  ws.textAll(buffer,lenJson);
+  Serial.printf("WS TX-> JSON %s\n",buffer);
+}
+
+void checkGearChange(){
+  uint16_t upPressed = up_button.pressTime();
+  uint16_t downPressed = down_button.pressTime();
+  if( upPressed>0 ){
+    // Serial.printf("Change counter:%d UP Presstime:%d\n", up_button.changeCount, upPressed );
+    myservo.write(shifterState.upDegrees);
+    delay(250);
+    myservo.write(shifterState.midPointDegrees);
+    if( shifterState.currentGearPositonId <= 6 ){
+      shifterState.currentGearPositonId++;
+    }
+    wsSendGearUpdate();
+  }
+  if( downPressed>0 ){
+    // Serial.printf("Change counter:%d Down Presstime:%d\n", down_button.changeCount, downPressed );
+    myservo.write(shifterState.downDegrees);
+    delay(250);
+    myservo.write(shifterState.midPointDegrees);
+    if( shifterState.currentGearPositonId > 1 ){
+      shifterState.currentGearPositonId--;
+      wsSendGearUpdate();
+    }
+    wsSendGearUpdate();
+  }
+}
+
 void server_routes(){
   // https://github.com/me-no-dev/ESPAsyncWebServer#handlers-and-how-do-they-work
   server.onNotFound([](AsyncWebServerRequest *request){
@@ -174,15 +212,7 @@ void server_routes(){
   server.addHandler(&ws);
 }
 
-void wsSendGearUpdate(){
-  char buffer[1000];
-  json_tx.clear();
-  json_tx["messageType"] = "gearPosition";
-  json_tx["payload"]["currentGearPosition"] = &shifterState.currentGearPosition;
-  size_t lenJson = serializeJson(json_tx, buffer);
-  ws.textAll(buffer,lenJson);
-  // Serial.printf("WS TX-> JSON %s\n",buffer);
-}
+
 
 void setup(){
   esp_task_wdt_init(WDT_TIMEOUT, true);
@@ -196,6 +226,18 @@ void setup(){
     Serial.println("An Error has occurred while mounting LittleFS");
     return;
   }
+
+  // Allow allocation of all timers
+	ESP32PWM::allocateTimer(0);
+	ESP32PWM::allocateTimer(1);
+	ESP32PWM::allocateTimer(2);
+	ESP32PWM::allocateTimer(3);
+	myservo.setPeriodHertz(50);    // standard 50 hz servo
+	myservo.attach(PIN_SHIFTER_SERVO, 500, 2400); // 500 - 2400 for 9G SG90
+  pinMode(PIN_BUTTON_UP,INPUT_PULLUP);
+  up_button.begin();
+  down_button.begin();
+  myservo.write(shifterState.midPointDegrees);
   
   WiFi.softAP(wifi_ssid,wifi_password);
   ip_address = WiFi.softAPIP();
@@ -209,12 +251,11 @@ void setup(){
   Serial.println(ip_address);
 }
 
-
 void loop(){
   esp_task_wdt_reset();
   dnsServer.processNextRequest();
+  checkGearChange();
   delay(50);
-
 }
 
 void wsOnEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
@@ -222,6 +263,7 @@ void wsOnEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
   switch (type) {
     case WS_EVT_CONNECT:
       Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+      wsSendGearUpdate();
       break;
     case WS_EVT_DISCONNECT:
       Serial.printf("WebSocket client #%u disconnected\n", client->id());

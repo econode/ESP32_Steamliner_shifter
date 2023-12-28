@@ -49,7 +49,7 @@ function onMessage(event) {
     console.log("Websocket JSON parse error")
     console.log(e)
     }
-
+    console.log(jsonData);
     messageType = jsonData.messageType;
     var gearPositon = jsonData.payload.currentGearPosition;
     changeGearBoxIndicator(gearPositon);
