@@ -64,7 +64,8 @@ Select PlatformIO icon in the left pain then click Project Tasks / Platform / Up
 
 ![Screenshot upload file system](docs/images/upload_file_system.png)
 
-Change the pin definitions to match your hardware.
+**Change the pin definitions to match your hardware.**
+
 ```C++
 // PIN Defintions
 #define PIN_BUTTON_UP 12
@@ -73,6 +74,12 @@ Change the pin definitions to match your hardware.
 #define BUTTON_DEBOUNCE_MS 50
 ```
 
+**Change internal web server SSID / Password.**
+
+```C++
+#define WIFI_SSID "AutoShifter"
+#define WIFI_PASSWORD "123456789"
+```
 **Compile and upload the firmware to the ESP32.**
 
 Note: Most ESP32 development boards include a reset circuit, some boards you will need to manually.
@@ -93,11 +100,10 @@ Note debug messages are outputed to the serial port @ 115,200 baud.
 
 ![SmartPhone screenshot of shifter](docs/images/shifter_screenshot_19-12-2023.png)
 
-## Change internal web server SSID / Password 
-```C++
-#define WIFI_SSID "AutoShifter"
-#define WIFI_PASSWORD "123456789"
-```
+**Bread board prototype used for testing**
+
+![Photo of prototype on bread board](docs/images/shifter_breadboard.png)
+
 
 ## License
 
