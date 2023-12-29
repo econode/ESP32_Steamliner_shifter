@@ -59,6 +59,8 @@ Open the newly created project in PlatformIO IDE.
 
 **Upload file system**
 
+*Note each time you alter any web related files in the /data folder you need to upload again.
+
 The project uses the LittleFS (https://randomnerdtutorials.com/esp32-write-data-littlefs-arduino/).
 You will need to format the ESP32's flash partition system and upload the littleFS file system image. The image is created from the files in the project/data directory.
 
@@ -100,7 +102,9 @@ Click on the compile & upload icon on the bottom of the IDE screen.
 Connect to ESP32 WiFi access point, default name "AutoShifter".
 Captive portal should redirect to 192.168.4.1 ,if not manually enter http://192.168.4.1 into your browser.
 
-Note debug messages are outputed to the USB/Serial port @ 115,200 baud.
+The gear "up" / "down" buttons simulate the hardware buttons on the ESP32 including timing, IE the period of time the button is held. 
+
+Note: debug messages are outputed to the USB/Serial port @ 115,200 baud.
 
 **Screenshot from SmartPhone**
 
