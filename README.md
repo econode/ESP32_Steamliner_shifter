@@ -34,6 +34,7 @@ This code is meant to be a simple working example of using the following technol
 * Storing paramaters in non volatile NVS flash
 * Interrupt driven button debouncing
 * Servo control
+* Hardware watch dog timer
 
 I hope this sample code can be used as a starting point for other WiFi controlled ESP32 projects.
 
