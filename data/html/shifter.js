@@ -19,7 +19,7 @@ function handleOnLoad(event) {
     // buttonGearDown
     document.getElementById("buttonGearDown").addEventListener("click",handleBtnGearDown);
     let wsGatewayAddr = shifterConfig.wsGatewayAddr == "%wsGatewayAddr%" ? "ws://192.168.4.1/ws":shifterConfig.wsGatewayAddr;
-    initWebSocket( shifterConfig.wsGatewayAddr );
+    initWebSocket( wsGatewayAddr );
 }
 
 function handleBtnGearUp(event){
