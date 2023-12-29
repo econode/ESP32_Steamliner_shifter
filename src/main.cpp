@@ -30,8 +30,8 @@
 Servo myservo;
 
 // Smart button object
-smartButton up_button(PIN_BUTTON_UP,INPUT_PULLUP,50);
-smartButton down_button(PIN_BUTTON_DOWN,INPUT_PULLUP,50);
+smartButton up_button(PIN_BUTTON_UP,INPUT_PULLUP,BUTTON_DEBOUNCE_MS);
+smartButton down_button(PIN_BUTTON_DOWN,INPUT_PULLUP,BUTTON_DEBOUNCE_MS);
 
 
 // NVM / Preferences

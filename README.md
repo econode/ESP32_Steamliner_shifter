@@ -40,7 +40,9 @@ I hope this sample code can be used as a starting point for other WiFi controlle
 ## Requirements
 * VSCode with PlatformIO extension. See the following on how to install VSCode/PlatformIO (https://platformio.org/platformio-ide)
 * Suitable USB cable
-* Two push button switches and servo motor
+* Two push button switches
+* Servo motor note: adjust timing for servo motor see datasheet
+* Optional neutral LED
 * ESP32 Dev board (https://docs.platformio.org/en/latest/boards/espressif32/esp32dev.html)
 
 ## Building
@@ -72,6 +74,8 @@ Select PlatformIO icon in the left pain then click Project Tasks / Platform / Up
 #define PIN_BUTTON_DOWN 13
 #define PIN_SHIFTER_SERVO 14
 #define BUTTON_DEBOUNCE_MS 50
+// Set PIN_NEUTRAL_LED to 0 if no LED
+#define PIN_NEUTRAL_LED 15
 ```
 
 **Change internal web server SSID / Password.**
@@ -91,10 +95,10 @@ Click on the compile & upload icon on the bottom of the IDE screen.
 
 
 ## To use
-Connect to ESP32 WiFi access point.
+Connect to ESP32 WiFi access point, default name "AutoShifter".
 Captive portal should redirect to 192.168.4.1 ,if not manually enter http://192.168.4.1 into your browser.
 
-Note debug messages are outputed to the serial port @ 115,200 baud.
+Note debug messages are outputed to the USB/Serial port @ 115,200 baud.
 
 **Screenshot from SmartPhone**
 
