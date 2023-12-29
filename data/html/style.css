@@ -43,14 +43,14 @@ p{
 
 /* 3D buttons https://www.joshwcomeau.com/animation/3d-button/ */
 .pushable {
-  float: left;
-  margin-left: 30px;
+  margin-left: 15px;
   background: hsl(340deg 100% 32%);
   border-radius: 12px;
   border: none;
   padding: 0;
   cursor: pointer;
   outline-offset: 4px;
+  touch-action: none;
 }
 .front {
   display: block;
@@ -60,14 +60,17 @@ p{
   background: hsl(345deg 100% 47%);
   color: white;
   transform: translateY(-6px);
+  touch-action: none;
 }
 
 .pushable:active .front {
   transform: translateY(-2px);
+  background: hsl(340deg 100% 32%);
 }
 
 #linkSetDefaults {
   float: left;
+  margin-top: 30px;
   margin-left: 30px;
 }
 .updatedMessage p {

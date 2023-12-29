@@ -294,11 +294,13 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
 
     // Route websocket message based on messageType
     if( strcmp(message,"gearDown") == 0 ){
-      checkGearChange(0,1000);
+      uint16_t pressedTime = json_rx["pressedTime"];
+      checkGearChange(0,pressedTime);
     }
 
     if( strcmp(message,"gearUp") == 0 ){
-      checkGearChange(1000,0);
+      uint16_t pressedTime = json_rx["pressedTime"];
+      checkGearChange(pressedTime,0);
     }
   }
 }

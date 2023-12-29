@@ -1,6 +1,7 @@
 window.addEventListener('load', handleOnLoad);
 
 var websocket;
+var buttonState = {};
 
 function handleOnLoad(event) {
     if( shifterConfig.hasFormUpdated == "true"){
@@ -15,21 +16,31 @@ function handleOnLoad(event) {
     }
     document.getElementById("submitButton").addEventListener("submit",handleOnSubmit);
     // buttonGearUp
-    document.getElementById("buttonGearUp").addEventListener("click",handleBtnGearUp);
+    document.getElementById("buttonGearUp").addEventListener("pointerdown",function(){buttonState.upGearStart = new Date().getTime()} );
+    document.getElementById("buttonGearUp").addEventListener("pointerup",handleBtnGearUp);
     // buttonGearDown
-    document.getElementById("buttonGearDown").addEventListener("click",handleBtnGearDown);
+    document.getElementById("buttonGearDown").addEventListener("pointerdown",function(){ buttonState.downGearStart = new Date().getTime()} );
+    document.getElementById("buttonGearDown").addEventListener("pointerup",handleBtnGearDown);
+
+    
+
     let wsGatewayAddr = shifterConfig.wsGatewayAddr == "%wsGatewayAddr%" ? "ws://192.168.4.1/ws":shifterConfig.wsGatewayAddr;
     initWebSocket( wsGatewayAddr );
 }
 
 function handleBtnGearUp(event){
-    var jsonData = JSON.stringify({message:'gearUp'});
+    var now = new Date().getTime();
+    var pressedTime = now - buttonState.upGearStart;
+    var jsonData = JSON.stringify({message:'gearUp',pressedTime:pressedTime});
+    console.log(jsonData);
     websocket.send(jsonData);
 }
 
 function handleBtnGearDown(event){
-    console.log(event);
-    var jsonData = JSON.stringify({message:'gearDown'});
+    var now = new Date().getTime();
+    var pressedTime = now - buttonState.downGearStart;
+    var jsonData = JSON.stringify({message:'gearDown',pressedTime:pressedTime});
+    console.log(jsonData);
     websocket.send(jsonData);
 }
 
