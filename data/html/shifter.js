@@ -52,12 +52,16 @@ function onMessage(event) {
     console.log(jsonData);
     messageType = jsonData.messageType;
     var gearPositon = jsonData.payload.currentGearPosition;
+    var gearPosId = jsonData.payload.gearPosId;
+    var pressedTime = jsonData.payload.pressedTime;
     changeGearBoxIndicator(gearPositon);
 }
 
 function changeGearBoxIndicator(gearPositon){
     var elements = document.querySelectorAll(".gbSelected");
     elements.forEach((element) => {element.classList.remove('gbSelected');});
-    document.getElementById('gb'+gearPositon).classList.add('gbSelected');
+    if( document.getElementById('gb'+gearPositon) ){
+        document.getElementById('gb'+gearPositon).classList.add('gbSelected');
+    }
 }
 
