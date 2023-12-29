@@ -1,4 +1,4 @@
-#ifndef ezButton_h
+#ifndef smartButton_h
 #define smartButton_h
 #include <Arduino.h>
 
