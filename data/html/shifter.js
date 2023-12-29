@@ -3,18 +3,34 @@ window.addEventListener('load', handleOnLoad);
 var websocket;
 
 function handleOnLoad(event) {
-    if( hasFormUpdated ){
+    if( shifterConfig.hasFormUpdated == "true"){
         const oUpdatedMessage = document.getElementById("updatedMessage");
         oUpdatedMessage.style.display = "block";
         setTimeout( function(){oUpdatedMessage.style.display = "none";},1500);
     }
-    if( hasFromDefaults ){
+    if( shifterConfig.hasFromDefaults == "true" ){
         const oDefaultsMessage = document.getElementById("defaultsMessage");
         oDefaultsMessage.style.display = "block";
         setTimeout( function(){oDefaultsMessage.style.display = "none";},1500);
     }
-    document.getElementById("shifterForm").addEventListener("submit",handleOnSubmit);
-    initWebSocket();
+    document.getElementById("submitButton").addEventListener("submit",handleOnSubmit);
+    // buttonGearUp
+    document.getElementById("buttonGearUp").addEventListener("click",handleBtnGearUp);
+    // buttonGearDown
+    document.getElementById("buttonGearDown").addEventListener("click",handleBtnGearDown);
+    let wsGatewayAddr = shifterConfig.wsGatewayAddr == "%wsGatewayAddr%" ? "ws://192.168.4.1/ws":shifterConfig.wsGatewayAddr;
+    initWebSocket( shifterConfig.wsGatewayAddr );
+}
+
+function handleBtnGearUp(event){
+    var jsonData = JSON.stringify({message:'gearUp'});
+    websocket.send(jsonData);
+}
+
+function handleBtnGearDown(event){
+    console.log(event);
+    var jsonData = JSON.stringify({message:'gearDown'});
+    websocket.send(jsonData);
 }
 
 function handleOnSubmit(event){
@@ -23,8 +39,7 @@ function handleOnSubmit(event){
     websocket.close();
 }
 
-function initWebSocket() {
-    // wsGatewayAddr comes from template / index.html
+function initWebSocket(wsGatewayAddr){
     console.log('WS: Trying to open a WebSocket connection to '+ wsGatewayAddr );
     websocket = new WebSocket(wsGatewayAddr);
     websocket.onopen    = onOpen;

@@ -13,11 +13,6 @@ p{
   font-size: 1.5rem;
 }
 
-#submitButton {
-  width: 150px;
-  height: 35px;
-  font-weight: bold;
-}
 #shifterForm td:has(label) {
   text-align: right;
 }
@@ -46,6 +41,35 @@ p{
   border: rgb(47, 255, 54) solid 5px;
 }
 
+/* 3D buttons https://www.joshwcomeau.com/animation/3d-button/ */
+.pushable {
+  float: left;
+  margin-left: 30px;
+  background: hsl(340deg 100% 32%);
+  border-radius: 12px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;
+}
+.front {
+  display: block;
+  padding: 12px 42px;
+  border-radius: 12px;
+  font-size: 1.25rem;
+  background: hsl(345deg 100% 47%);
+  color: white;
+  transform: translateY(-6px);
+}
+
+.pushable:active .front {
+  transform: translateY(-2px);
+}
+
+#linkSetDefaults {
+  float: left;
+  margin-left: 30px;
+}
 .updatedMessage p {
   position: absolute;
   top:50px;

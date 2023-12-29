@@ -40,6 +40,7 @@ Preferences preferences;
 // Forward declerations
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
 void wsOnEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
+void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
 
 const char* wifi_ssid = WIFI_SSID;
 const char* wifi_password = WIFI_PASSWORD;
@@ -47,6 +48,9 @@ IPAddress ip_address;
 DNSServer dnsServer;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
+
+// Buffer space for JSON data processing
+StaticJsonDocument<2048> json_rx;
 StaticJsonDocument<2048> json_tx;
 
 struct shifterState_t {
@@ -66,9 +70,6 @@ struct shifterState_t {
   uint8_t currentGearPositonId = 2; // Gear positon #2 = neutral
 };
 shifterState_t volatile shifterState;
-
-
-enum pongType {STARTUP=1,USER=2,KEEPALIVE=3};
 
 String templateProcessor(const String& paramName){
   // Process template
@@ -92,15 +93,14 @@ String templateProcessor(const String& paramName){
     return String(shifterState.downDegrees);
   }
   if( paramName == "hasFormUpdated" ){
-    bool hasFormUpdated = shifterState.hasFormUpdated;
+    String hasFormUpdated = shifterState.hasFormUpdated?"true":"false";
     shifterState.hasFormUpdated = false;
-    // return  hasFormUpdated?"true":"false";
-    return String( hasFormUpdated );
+    return hasFormUpdated;
   }
   if( paramName == "hasFromDefaults" ){
-    bool hasFromDefaults = shifterState.hasFromDefaults;
+    String hasFromDefaults = shifterState.hasFromDefaults?"true":"false";
     shifterState.hasFromDefaults = false;
-    return  hasFromDefaults?"true":"false";
+    return hasFromDefaults;
   }
   // We didn't find anything return empty string
   return String();
@@ -173,9 +173,7 @@ void wsSendGearUpdate(uint16_t pressedTime){
   if( PIN_NEUTRAL_LED>0 ) digitalWrite( PIN_NEUTRAL_LED, gearPosText=="N" );
 }
 
-void checkGearChange(){
-  uint16_t upPressed = up_button.pressTime();
-  uint16_t downPressed = down_button.pressTime();
+void checkGearChange(uint16_t upPressed,uint16_t downPressed){
   if( downPressed>0 ){
     // Serial.printf("Change counter:%d Down Presstime:%d\n", down_button.changeCount, downPressed );
     myservo.write(shifterState.downDegrees);
@@ -259,7 +257,51 @@ void server_routes(){
   server.addHandler(&ws);
 }
 
+void wsOnEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
+ void *arg, uint8_t *data, size_t len) {
+  switch (type) {
+    case WS_EVT_CONNECT:
+      Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+      wsSendGearUpdate(0);
+      break;
+    case WS_EVT_DISCONNECT:
+      Serial.printf("WebSocket client #%u disconnected\n", client->id());
+      break;
+    case WS_EVT_DATA:
+        handleWebSocketMessage(arg, data, len);
+      break;
+    case WS_EVT_PONG:
+    case WS_EVT_ERROR:
+      break;
+  }
+}
 
+void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
+  AwsFrameInfo *info = (AwsFrameInfo*)arg;
+  char buffer[1000];
+  
+  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
+    data[len] = 0;
+    Serial.printf("WS RX rawstring:%s\n",data);
+    DeserializationError err = deserializeJson(json_rx,data);
+    if (err) {
+      Serial.printf("ERROR: deserializeJson() failed with: %s\n",err.c_str() );
+      Serial.printf("Can not process websocket request\n");
+      return;
+    }
+    const char* message = json_rx["message"];
+    Serial.printf("WS RX->message:%s\n",message);
+
+    // Route websocket message based on messageType
+    if( strcmp(message,"gearDown") == 0 ){
+      checkGearChange(0,1000);
+    }
+
+    if( strcmp(message,"gearUp") == 0 ){
+      checkGearChange(1000,0);
+    }
+  }
+}
 
 void setup(){
   esp_task_wdt_init(WDT_TIMEOUT, true);
@@ -303,27 +345,10 @@ void setup(){
 }
 
 void loop(){
+  uint16_t upPressed = up_button.pressTime();
+  uint16_t downPressed = down_button.pressTime();
   esp_task_wdt_reset();
   dnsServer.processNextRequest();
-  checkGearChange();
+  checkGearChange(upPressed,downPressed);
   delay(50);
-}
-
-void wsOnEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
- void *arg, uint8_t *data, size_t len) {
-  switch (type) {
-    case WS_EVT_CONNECT:
-      Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
-      wsSendGearUpdate(0);
-      break;
-    case WS_EVT_DISCONNECT:
-      Serial.printf("WebSocket client #%u disconnected\n", client->id());
-      break;
-    case WS_EVT_DATA:
-      // handleWebSocketMessage(arg, data, len);
-      break;
-    case WS_EVT_PONG:
-    case WS_EVT_ERROR:
-      break;
-  }
 }

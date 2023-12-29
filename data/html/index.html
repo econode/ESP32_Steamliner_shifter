@@ -7,9 +7,10 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   <script src="/shifter.js"></script>
   <script>
-    const hasFormUpdated = %hasFormUpdated%;
-    const hasFromDefaults = %hasFromDefaults%;
-    const wsGatewayAddr = "%wsGatewayAddr%";
+    let shifterConfig = {};
+    shifterConfig.hasFormUpdated = "%hasFormUpdated%";
+    shifterConfig.hasFromDefaults = "%hasFromDefaults%";
+    shifterConfig.wsGatewayAddr = "%wsGatewayAddr%";
   </script>
 </head>
 <body>
@@ -64,7 +65,8 @@
         </tr>
         <tr>
           <td colspan="2">
-            <button id="submitButton" type="submit">Update</button>
+            <br />
+            <button id="submitButton" type="submit" class="pushable"><span class="front">Update</span></button>
           </td>
         </tr>
       </table>
@@ -84,6 +86,15 @@
       </tr>
     </table>
     <br />
-    <a href="/setdefaults" style="float: left;">Set defaults</a>
+    <br />
+    <div>
+    <button id="buttonGearUp" class="pushable"><span class="front">Up</span></button>
+    <button id="buttonGearDown" class="pushable"><span class="front">Down</span></button>
+    </div>
+    <br />
+    <br />
+    <br />
+    <br />
+    <a id="linkSetDefaults" href="/setdefaults" style="float: left;">Set defaults</a>
 </body>
 </html>
