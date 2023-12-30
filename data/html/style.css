@@ -51,6 +51,8 @@ p{
   cursor: pointer;
   outline-offset: 4px;
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .front {
   display: block;
@@ -61,6 +63,8 @@ p{
   color: white;
   transform: translateY(-6px);
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .pushable:active .front {
