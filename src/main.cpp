@@ -56,16 +56,16 @@ StaticJsonDocument<2048> json_tx;
 struct shifterState_t {
   bool hasFormUpdated = false;
   bool hasFromDefaults = false;
-  const uint8_t defaultUpDegrees = 200;
-  const uint8_t defaultNeutralDegrees = 130;
-  const uint8_t defaultMidPointDegrees = 95;
-  const uint8_t defaultDownDegrees = 10;
+  const uint16_t defaultUpDegrees = 200;
+  const uint16_t defaultNeutralDegrees = 130;
+  const uint16_t defaultMidPointDegrees = 95;
+  const uint16_t defaultDownDegrees = 10;
   const uint16_t defaultHoldDelay = 200;
 
-  uint8_t upDegrees;
-  uint8_t neutralDegrees;
-  uint8_t midPointDegrees;
-  uint8_t downDegrees;
+  uint16_t upDegrees;
+  uint16_t neutralDegrees;
+  uint16_t midPointDegrees;
+  uint16_t downDegrees;
   uint16_t holdDelay;
   uint8_t currentGearPositonId = 2; // Gear positon #2 = neutral
 };
@@ -110,16 +110,16 @@ void processFormParamater( const String& fieldName, const String& fieldValue ){
   Serial.printf("field: %s = %s\n",fieldName,fieldValue);
   uint16_t intFieldValue = (uint16_t) fieldValue.toInt();
   if( fieldName == "servoUpDegrees" ){
-    shifterState.upDegrees = (uint8_t) intFieldValue;
+    shifterState.upDegrees = intFieldValue;
   }
   if( fieldName == "servoNeutralDegrees" ){
-    shifterState.neutralDegrees = (uint8_t) intFieldValue;
+    shifterState.neutralDegrees = intFieldValue;
   }
   if( fieldName == "servoMidPointDegrees" ){
-    shifterState.midPointDegrees = (uint8_t) intFieldValue;
+    shifterState.midPointDegrees = intFieldValue;
   }
   if( fieldName == "servoDownDegrees" ){
-    shifterState.downDegrees = (uint8_t) intFieldValue;
+    shifterState.downDegrees = intFieldValue;
   }
   if( fieldName == "holdDelay" ){
     shifterState.holdDelay = intFieldValue;
@@ -127,11 +127,11 @@ void processFormParamater( const String& fieldName, const String& fieldValue ){
 }
 
 void nvsWrite(){
-  preferences.putUChar("upDegrees", shifterState.upDegrees);
-  preferences.putUChar("neutralDegrees", shifterState.neutralDegrees);
-  preferences.putUChar("midPointDegrees", shifterState.midPointDegrees);
-  preferences.putUChar("downDegrees", shifterState.downDegrees);
-  preferences.putUChar("holdDelay", shifterState.holdDelay);
+  preferences.putUShort("upDegrees", shifterState.upDegrees);
+  preferences.putUShort("neutralDegrees", shifterState.neutralDegrees);
+  preferences.putUShort("midPointDegrees", shifterState.midPointDegrees);
+  preferences.putUShort("downDegrees", shifterState.downDegrees);
+  preferences.putUShort("holdDelay", shifterState.holdDelay);
 }
 
 void nvsRead(){
@@ -146,11 +146,11 @@ void nvsRead(){
     nvsWrite();
     return;
   }
-  shifterState.upDegrees = preferences.getUChar("upDegrees");
-  shifterState.neutralDegrees = preferences.getUChar("neutralDegrees");
-  shifterState.midPointDegrees = preferences.getUChar("midPointDegrees");
-  shifterState.downDegrees = preferences.getUChar("downDegrees");
-  shifterState.holdDelay = preferences.getUChar("holdDelay");
+  shifterState.upDegrees = preferences.getUShort("upDegrees");
+  shifterState.neutralDegrees = preferences.getUShort("neutralDegrees");
+  shifterState.midPointDegrees = preferences.getUShort("midPointDegrees");
+  shifterState.downDegrees = preferences.getUShort("downDegrees");
+  shifterState.holdDelay = preferences.getUShort("holdDelay");
 }
 
 String getGearPosText( uint8_t gearPosId ){
@@ -327,7 +327,6 @@ void setup(){
 	ESP32PWM::allocateTimer(3);
 	myservo.setPeriodHertz(50);    // standard 50 hz servo
 	myservo.attach(PIN_SHIFTER_SERVO, 500, 2400); // 500 - 2400 for 9G SG90
-  pinMode(PIN_BUTTON_UP,INPUT_PULLUP);
   up_button.begin();
   down_button.begin();
   myservo.write(shifterState.midPointDegrees);
