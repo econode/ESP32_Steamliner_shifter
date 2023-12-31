@@ -61,12 +61,14 @@ struct shifterState_t {
   const uint16_t defaultMidPointDegrees = 95;
   const uint16_t defaultDownDegrees = 10;
   const uint16_t defaultHoldDelay = 200;
+  const uint16_t defaultNeutralPressTime = 750;
 
   uint16_t upDegrees;
   uint16_t neutralDegrees;
   uint16_t midPointDegrees;
   uint16_t downDegrees;
   uint16_t holdDelay;
+  uint16_t neutralPressTime;
   uint8_t currentGearPositonId = 2; // Gear positon #2 = neutral
 };
 shifterState_t volatile shifterState;
@@ -132,6 +134,7 @@ void nvsWrite(){
   preferences.putUShort("midPointDegrees", shifterState.midPointDegrees);
   preferences.putUShort("downDegrees", shifterState.downDegrees);
   preferences.putUShort("holdDelay", shifterState.holdDelay);
+  preferences.putUShort("neutralPressTime", shifterState.neutralPressTime);
 }
 
 void nvsRead(){
@@ -142,6 +145,7 @@ void nvsRead(){
     shifterState.neutralDegrees = shifterState.defaultNeutralDegrees;
     shifterState.downDegrees = shifterState.defaultDownDegrees;
     shifterState.holdDelay = shifterState.defaultHoldDelay;
+    shifterState.neutralPressTime = shifterState.defaultNeutralPressTime;
     shifterState.hasFromDefaults = true;
     nvsWrite();
     return;
@@ -151,6 +155,7 @@ void nvsRead(){
   shifterState.midPointDegrees = preferences.getUShort("midPointDegrees");
   shifterState.downDegrees = preferences.getUShort("downDegrees");
   shifterState.holdDelay = preferences.getUShort("holdDelay");
+  shifterState.neutralPressTime = preferences.getUShort("neutralPressTime");
 }
 
 String getGearPosText( uint8_t gearPosId ){
@@ -192,7 +197,7 @@ void checkGearChange(uint16_t upPressed,uint16_t downPressed){
   }
 
   // Check to see if we are in first and need to shift to neutral
-  if( upPressed>1500 && shifterState.currentGearPositonId==1 ){
+  if( upPressed>shifterState.neutralPressTime && shifterState.currentGearPositonId==1 ){
     myservo.write(shifterState.neutralDegrees);
     delay(shifterState.holdDelay);
     myservo.write(shifterState.midPointDegrees);
