@@ -58,7 +58,7 @@ Open the newly created project in PlatformIO IDE.
 
 **Edit defaults.h**
 
-Copy the sample_defaults.h file to defaults.h
+Copy the src/sample_defaults.h file to src/defaults.h
 The compiler will read sample_defaults.h if defaults.h is missing, defaults.h is ignored by GIT so any cahnges to defaults.h remain local / private.
 defaults.h contains pin mappings, WiFi settings, and general default values.
 
