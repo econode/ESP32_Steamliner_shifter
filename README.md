@@ -70,8 +70,6 @@ defaults.h contains pin mappings, WiFi settings, and general default values.
 The project uses the LittleFS (https://randomnerdtutorials.com/esp32-write-data-littlefs-arduino/).
 You will need to format the ESP32's flash partition system and upload the littleFS file system image. The image is created from the files in the project/data directory.
 
-Each time you edit any of the files in project/data you will need to reflash the ESP32.
-
 Select PlatformIO icon in the left pain then click Project Tasks / Platform / Upload Filesystem Image.
 
 ![Screenshot upload file system](docs/images/upload_file_system.png)
