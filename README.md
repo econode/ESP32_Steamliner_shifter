@@ -22,7 +22,16 @@ This project is done in the spirt of OpenSource and the memory of Burt Munro the
 
 Please see Landspeed New Zealand (https://www.landspeed.org.nz/)
 
-**Reason for writing this code sample**
+**To Do List**<br>
+* Add NVS version so NVS structure and firmware are in sync
+* Add Defaults version number to alert of changes to sample_defaults, include instructions on how to do diff in VSCode
+* Rename NVS routines to prefernces.
+* Move Gear change code to a FreeRTOS thead
+* Implement semaphores / mutex to stop multiple triggers on gear change
+* Add servo settle time
+ 
+
+**Reason for writing this code sample**<br/>
 This code is meant to be a simple working example of using the following technologies.
 * ESP32 as WiFi access point
 * Captive portal / DNS

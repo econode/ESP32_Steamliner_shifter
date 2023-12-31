@@ -13,6 +13,8 @@
 
 // Copy of sample_defaults.h to defaults.h to customise any defaults
 // defaults.h is ignored by GIT
+
+// @Todo add defaults version 1/1/2024
 #if __has_include ("defaults.h")
   #include <defaults.h>
 #else
@@ -123,6 +125,7 @@ void processFormParamater( const String& fieldName, const String& fieldValue ){
   }
 }
 
+// @Todo have NVS version number to detect firmware / NVS are in sync 1/1/2024
 void nvsWrite(){
   preferences.putUShort("upDegrees", shifterState.upDegrees);
   preferences.putUShort("neutralDegrees", shifterState.neutralDegrees);
