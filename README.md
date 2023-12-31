@@ -103,11 +103,9 @@ Note: debug messages are outputed to the USB/Serial port @ 115,200 baud.
 
 ![Photo of prototype on bread board](docs/images/shifter_breadboard.png)
 
-**Servo datasheets**
-
-[SG90 Servo datasheet](docs/SG90_servo_datasheet.pdf)
-
-![DS5160 Servo datasheet](docs/DS5160_servo_datasheet.pdf)
+**Servo datasheets**<br/>
+SG90 1.8KG @ 5 volts [SG90 Servo datasheet](docs/SG90_servo_datasheet.pdf)<br/>
+DS5160 65KG @ 7.4 volts [DS5160 Servo datasheet](docs/DS5160_servo_datasheet.pdf)<br/>
 
 
 ## License
