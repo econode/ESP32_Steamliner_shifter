@@ -29,7 +29,7 @@ Please see Landspeed New Zealand (https://www.landspeed.org.nz/)
 * Move Gear change code to a FreeRTOS thead
 * Implement semaphores / mutex to stop multiple triggers on gear change
 * Add servo settle time
- 
+* Add debug level for serial messages
 
 **Reason for writing this code sample**<br/>
 This code is meant to be a simple working example of using the following technologies.
@@ -102,17 +102,15 @@ The gear "up" / "down" buttons simulate the hardware buttons on the ESP32 includ
 
 Note: debug messages are outputed to the USB/Serial port @ 115,200 baud.
 
-**Screenshot from SmartPhone**
-
+**Screenshot from SmartPhone**<br/>
 ![SmartPhone screenshot of shifter](docs/images/shifter_screenshot_19-12-2023.png)
 
-**Bread board prototype used for testing**
-
+**Bread board prototype used for testing**<br/>
 ![Photo of prototype on bread board](docs/images/shifter_breadboard.png)
 
 **Servo datasheets**<br/>
-SG90 1.8KG @ 5 volts [SG90 Servo datasheet](docs/SG90_servo_datasheet.pdf)<br/>
-DS5160 65KG @ 7.4 volts [DS5160 Servo datasheet](docs/DS5160_servo_datasheet.pdf)<br/>
+SG90 1.8KG @ 5 volts [SG90 Servo datasheet PDF](docs/SG90_servo_datasheet.pdf)<br/>
+DS5160 65KG @ 7.4 volts [DS5160 Servo datasheet PDF](docs/DS5160_servo_datasheet.pdf)<br/>
 
 
 ## License
