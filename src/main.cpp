@@ -11,20 +11,15 @@
 #include <esp_task_wdt.h>
 #include <smartButton.h>
 
-// PIN Defintions
-#define PIN_BUTTON_UP 12
-#define PIN_BUTTON_DOWN 13
-#define PIN_SHIFTER_SERVO 14
-#define BUTTON_DEBOUNCE_MS 50
-// Set PIN_NEUTRAL_LED to 0 if no LED
-#define PIN_NEUTRAL_LED 15
+// Copy of sample_defaults.h to defaults.h to customise any defaults
+// defaults.h is ignored by GIT
+#if __has_include ("defaults.h")
+  #include <defaults.h>
+#else
+  #warning header file defaults.h missing using sample_defaults.h
+  #include <sample_defaults.h>
+#endif
 
-#define NVM_NAME_SPACE "AUTOSHIFTER"
-#define WIFI_SSID "AutoShifter"
-#define WIFI_PASSWORD "123456789"
-
-// Hardware watchdog timeout in seconds
-#define WDT_TIMEOUT 5
 
 // Servo Object
 Servo myservo;
@@ -56,12 +51,12 @@ StaticJsonDocument<2048> json_tx;
 struct shifterState_t {
   bool hasFormUpdated = false;
   bool hasFromDefaults = false;
-  const uint16_t defaultUpDegrees = 200;
-  const uint16_t defaultNeutralDegrees = 130;
-  const uint16_t defaultMidPointDegrees = 95;
-  const uint16_t defaultDownDegrees = 10;
-  const uint16_t defaultHoldDelay = 200;
-  const uint16_t defaultNeutralPressTime = 750;
+  const uint16_t defaultUpDegrees = DEFAULT_UpDegrees;
+  const uint16_t defaultNeutralDegrees = DEFAULT_NeutralDegrees;
+  const uint16_t defaultMidPointDegrees = DEFAULT_MidPointDegrees;
+  const uint16_t defaultDownDegrees = DEFAULT_DownDegrees;
+  const uint16_t defaultHoldDelay = DEFAULT_HoldDelay;
+  const uint16_t defaultNeutralPressTime = DEFAULT_NeutralPressTime;
 
   uint16_t upDegrees;
   uint16_t neutralDegrees;
@@ -331,7 +326,7 @@ void setup(){
 	ESP32PWM::allocateTimer(2);
 	ESP32PWM::allocateTimer(3);
 	myservo.setPeriodHertz(50);    // standard 50 hz servo
-	myservo.attach(PIN_SHIFTER_SERVO, 500, 2400); // 500 - 2400 for 9G SG90
+	myservo.attach(PIN_SHIFTER_SERVO, SERVO_MINIMUM_PULSE_WIDTH, SERVO_MAXIMUM_PULSE_WIDTH); // 500 - 2400 for 9G SG90
   up_button.begin();
   down_button.begin();
   myservo.write(shifterState.midPointDegrees);

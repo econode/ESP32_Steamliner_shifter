@@ -56,6 +56,12 @@ git clone https://github.com/econode/ESP32_Steamliner_shifter.git
 
 Open the newly created project in PlatformIO IDE.
 
+**Edit defaults.h**
+
+Copy the sample_defaults.h file to defaults.h
+The compiler will read sample_defaults.h if defaults.h is missing, defaults.h is ignored by GIT so any cahnges to defaults.h remain local / private.
+defaults.h contains pin mappings, WiFi settings, and general default values.
+
 
 **Upload file system**
 
@@ -70,24 +76,7 @@ Select PlatformIO icon in the left pain then click Project Tasks / Platform / Up
 
 ![Screenshot upload file system](docs/images/upload_file_system.png)
 
-**Change the pin definitions to match your hardware.**
 
-```C++
-// PIN Defintions
-#define PIN_BUTTON_UP 12
-#define PIN_BUTTON_DOWN 13
-#define PIN_SHIFTER_SERVO 14
-#define BUTTON_DEBOUNCE_MS 50
-// Set PIN_NEUTRAL_LED to 0 if no LED
-#define PIN_NEUTRAL_LED 15
-```
-
-**Change internal web server SSID / Password.**
-
-```C++
-#define WIFI_SSID "AutoShifter"
-#define WIFI_PASSWORD "123456789"
-```
 **Compile and upload the firmware to the ESP32.**
 
 Note: Most ESP32 development boards include a reset circuit, some boards you will need to manually.
@@ -119,7 +108,6 @@ Note: debug messages are outputed to the USB/Serial port @ 115,200 baud.
 
 **MIT License**
  [MIT](https://choosealicense.com/licenses/mit/)
- MIT License
 
 Copyright (c) 2023 Econode NZ Ltd
 
