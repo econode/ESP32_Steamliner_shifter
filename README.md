@@ -105,7 +105,8 @@ Note: debug messages are outputed to the USB/Serial port @ 115,200 baud.
 
 **Servo datasheets**
 
-![SG90 Servo datasheet](docs/SG90_servo_datasheet.pdf)
+[SG90 Servo datasheet](docs/SG90_servo_datasheet.pdf)
+
 ![DS5160 Servo datasheet](docs/DS5160_servo_datasheet.pdf)
 
 
