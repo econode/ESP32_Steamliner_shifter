@@ -22,6 +22,9 @@
   #include <sample_defaults.h>
 #endif
 
+// Used to track structure of Preferences name space.
+#define PREFERENCES_NAME_SPACE "AUTOSHIFTER"
+#define PREFERENCES_VERSION 3
 
 // Servo Object
 Servo myservo;
@@ -125,8 +128,8 @@ void processFormParamater( const String& fieldName, const String& fieldValue ){
   }
 }
 
-// @Todo have NVS version number to detect firmware / NVS are in sync 1/1/2024
-void nvsWrite(){
+void preferencesWrite(){
+  preferences.putUShort("version", PREFERENCES_VERSION);
   preferences.putUShort("upDegrees", shifterState.upDegrees);
   preferences.putUShort("neutralDegrees", shifterState.neutralDegrees);
   preferences.putUShort("midPointDegrees", shifterState.midPointDegrees);
@@ -135,9 +138,9 @@ void nvsWrite(){
   preferences.putUShort("neutralPressTime", shifterState.neutralPressTime);
 }
 
-void nvsRead(){
-  if( preferences.isKey("upDegrees") == false ){
-    // Empty name space ?, push defaults
+void preferencesRead(){
+  if( preferences.isKey("version") == false || preferences.getUShort("version") != PREFERENCES_VERSION ){
+    // Empty name space or name space structure has changed, push defaults
     shifterState.upDegrees = shifterState.defaultUpDegrees;
     shifterState.midPointDegrees = shifterState.defaultMidPointDegrees;
     shifterState.neutralDegrees = shifterState.defaultNeutralDegrees;
@@ -145,7 +148,7 @@ void nvsRead(){
     shifterState.holdDelay = shifterState.defaultHoldDelay;
     shifterState.neutralPressTime = shifterState.defaultNeutralPressTime;
     shifterState.hasFromDefaults = true;
-    nvsWrite();
+    preferencesWrite();
     return;
   }
   shifterState.upDegrees = preferences.getUShort("upDegrees");
@@ -239,7 +242,7 @@ void server_routes(){
         AsyncWebParameter * param = request->getParam(i);
         processFormParamater(param->name(), param->value());
       }
-      nvsWrite();
+      preferencesWrite();
     }
     // Send response page using index.html via templateProcessor
     Serial.printf("Send index.html page\n");
@@ -248,7 +251,7 @@ void server_routes(){
 
   server.on("/setdefaults", HTTP_GET, [](AsyncWebServerRequest * request){
     preferences.clear();
-    nvsRead();
+    preferencesRead();
     request->redirect("/index.html");
   });
 
@@ -312,8 +315,8 @@ void setup(){
   esp_task_wdt_init(WDT_TIMEOUT, true);
   esp_task_wdt_add(NULL);
   Serial.begin(115200);
-  preferences.begin( NVM_NAME_SPACE, false);
-  nvsRead();
+  preferences.begin( PREFERENCES_NAME_SPACE, false);
+  preferencesRead();
 
   if( PIN_NEUTRAL_LED > 0 ) pinMode(PIN_NEUTRAL_LED,OUTPUT);
 

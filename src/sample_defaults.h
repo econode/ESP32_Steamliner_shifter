@@ -18,8 +18,6 @@
 // Set PIN_NEUTRAL_LED to 0 if no LED
 #define PIN_NEUTRAL_LED 15
 
-#define NVM_NAME_SPACE "AUTOSHIFTER"
-
 // Hardware watchdog timeout in seconds
 #define WDT_TIMEOUT 5
 
