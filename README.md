@@ -23,11 +23,8 @@ This project is done in the spirt of OpenSource and the memory of Burt Munro the
 Please see Landspeed New Zealand (https://www.landspeed.org.nz/)
 
 **To Do List**<br>
-* Add Defaults version number to alert of changes to sample_defaults, include instructions on how to do diff in VSCode
 * Move Gear change code to a FreeRTOS thead
-* Implement semaphores / mutex to stop multiple triggers on gear change
 * Add servo settle time
-* Add debug level for serial messages
 
 **Reason for writing this code sample**<br/>
 This code is meant to be a simple working example of using the following technologies.
@@ -40,7 +37,7 @@ This code is meant to be a simple working example of using the following technol
 * * Async HTML5 Web Sockets
 * Arduino JSON
 * Storing paramaters in non volatile NVS flash
-* Interrupt driven button debouncing
+* Software shift register button debouncing
 * Servo control
 * Hardware watch dog timer
 
