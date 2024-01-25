@@ -9,7 +9,7 @@
 #include <cstring>
 #include <string>
 #include <esp_task_wdt.h>
-#include <smartButton.h>
+#include <pButton.h>
 
 // Copy of sample_defaults.h to defaults.h to customise any defaults
 // defaults.h is ignored by GIT
@@ -24,14 +24,14 @@
 
 // Used to track structure of Preferences name space.
 #define PREFERENCES_NAME_SPACE "AUTOSHIFTER"
-#define PREFERENCES_VERSION 3
+#define PREFERENCES_VERSION 4
 
 // Servo Object
 Servo myservo;
 
 // Smart button object
-smartButton up_button(PIN_BUTTON_UP,INPUT_PULLUP,BUTTON_DEBOUNCE_MS);
-smartButton down_button(PIN_BUTTON_DOWN,INPUT_PULLUP,BUTTON_DEBOUNCE_MS);
+pButton up_button(PIN_BUTTON_UP,INPUT_PULLUP,BUTTON_SAMPLES);
+pButton down_button(PIN_BUTTON_DOWN,INPUT_PULLUP,BUTTON_SAMPLES);
 
 
 // NVM / Preferences
@@ -41,9 +41,14 @@ Preferences preferences;
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
 void wsOnEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
+void taskButtonLoop( void *pvParamaters );
+TaskHandle_t Task1;
 
 const char* wifi_ssid = WIFI_SSID;
-const char* wifi_password = WIFI_PASSWORD;
+#ifdef WIFI_PASSWORD
+  const char* wifi_password = WIFI_PASSWORD;
+#endif
+
 IPAddress ip_address;
 DNSServer dnsServer;
 AsyncWebServer server(80);
@@ -130,12 +135,12 @@ void processFormParamater( const String& fieldName, const String& fieldValue ){
 
 void preferencesWrite(){
   preferences.putUShort("version", PREFERENCES_VERSION);
-  preferences.putUShort("upDegrees", shifterState.upDegrees);
-  preferences.putUShort("neutralDegrees", shifterState.neutralDegrees);
-  preferences.putUShort("midPointDegrees", shifterState.midPointDegrees);
-  preferences.putUShort("downDegrees", shifterState.downDegrees);
+  preferences.putUShort("uDegrees", shifterState.upDegrees);
+  preferences.putUShort("nDegrees", shifterState.neutralDegrees);
+  preferences.putUShort("mPDegrees", shifterState.midPointDegrees);
+  preferences.putUShort("dDegrees", shifterState.downDegrees);
   preferences.putUShort("holdDelay", shifterState.holdDelay);
-  preferences.putUShort("neutralPressTime", shifterState.neutralPressTime);
+  preferences.putUShort("nPTime", shifterState.neutralPressTime);
 }
 
 void preferencesRead(){
@@ -151,12 +156,12 @@ void preferencesRead(){
     preferencesWrite();
     return;
   }
-  shifterState.upDegrees = preferences.getUShort("upDegrees");
-  shifterState.neutralDegrees = preferences.getUShort("neutralDegrees");
-  shifterState.midPointDegrees = preferences.getUShort("midPointDegrees");
-  shifterState.downDegrees = preferences.getUShort("downDegrees");
+  shifterState.upDegrees = preferences.getUShort("uDegrees");
+  shifterState.neutralDegrees = preferences.getUShort("nDegrees");
+  shifterState.midPointDegrees = preferences.getUShort("mPDegrees");
+  shifterState.downDegrees = preferences.getUShort("dDegrees");
   shifterState.holdDelay = preferences.getUShort("holdDelay");
-  shifterState.neutralPressTime = preferences.getUShort("neutralPressTime");
+  shifterState.neutralPressTime = preferences.getUShort("nPTime");
 }
 
 String getGearPosText( uint8_t gearPosId ){
@@ -180,8 +185,7 @@ void wsSendGearUpdate(uint16_t pressedTime){
 }
 
 void checkGearChange(uint16_t upPressed,uint16_t downPressed){
-  if( downPressed>0 ){
-    // Serial.printf("Change counter:%d Down Presstime:%d\n", down_button.changeCount, downPressed );
+  if( downPressed>DEFAULT_MINIMUM_BUTTON_PRESS_TIME ){
     myservo.write(shifterState.downDegrees);
     delay(shifterState.holdDelay);
     myservo.write(shifterState.midPointDegrees);
@@ -208,8 +212,7 @@ void checkGearChange(uint16_t upPressed,uint16_t downPressed){
     return;
   }
 
-  if( upPressed>0 ){
-    // Serial.printf("Change counter:%d UP Presstime:%d\n", up_button.changeCount, upPressed );
+  if( upPressed>DEFAULT_MINIMUM_BUTTON_PRESS_TIME ){
     myservo.write(shifterState.upDegrees);
     delay(shifterState.holdDelay);
     myservo.write(shifterState.midPointDegrees);
@@ -311,10 +314,19 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   }
 }
 
+void taskButtonLoop( void *pvParamaters ){
+  while(true){ // Tasks should never exit.
+    delay(10);
+    up_button.poll();
+    down_button.poll();
+  }
+}
+
 void setup(){
   esp_task_wdt_init(WDT_TIMEOUT, true);
   esp_task_wdt_add(NULL);
   Serial.begin(115200);
+  xTaskCreatePinnedToCore(taskButtonLoop,"button",8096,NULL,1,&Task1,1);
   preferences.begin( PREFERENCES_NAME_SPACE, false);
   preferencesRead();
 
@@ -333,13 +345,15 @@ void setup(){
 	ESP32PWM::allocateTimer(3);
 	myservo.setPeriodHertz(50);    // standard 50 hz servo
 	myservo.attach(PIN_SHIFTER_SERVO, SERVO_MINIMUM_PULSE_WIDTH, SERVO_MAXIMUM_PULSE_WIDTH); // 500 - 2400 for 9G SG90
-  up_button.begin();
-  down_button.begin();
   myservo.write(shifterState.midPointDegrees);
   shifterState.currentGearPositonId = 2; // Assume neutral on start
   wsSendGearUpdate(0);
+  #ifdef WIFI_PASSWORD
+    WiFi.softAP(wifi_ssid,wifi_password);
+  #else
+    WiFi.softAP(wifi_ssid);
+  #endif
   
-  WiFi.softAP(wifi_ssid,wifi_password);
   ip_address = WiFi.softAPIP();
   Serial.println(ip_address);
   dnsServer.start(53, "*", ip_address );
@@ -354,6 +368,9 @@ void setup(){
 void loop(){
   uint16_t upPressed = up_button.pressTime();
   uint16_t downPressed = down_button.pressTime();
+  if( upPressed>0 || downPressed>0 ){
+    Serial.printf("Hardware button press time button_up:%d  button_down:%d\n",upPressed,downPressed);
+  }
   esp_task_wdt_reset();
   dnsServer.processNextRequest();
   checkGearChange(upPressed,downPressed);

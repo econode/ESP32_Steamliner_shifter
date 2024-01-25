@@ -8,13 +8,15 @@
 
 // WiFi values
 #define WIFI_SSID "AutoShifter"
-#define WIFI_PASSWORD "123456789"
+// Comment out WIFI Password for no password IE open
+// #define WIFI_PASSWORD "123456789"
 
 // PIN Definitions
 #define PIN_BUTTON_UP 12
 #define PIN_BUTTON_DOWN 13
 #define PIN_SHIFTER_SERVO 14
-#define BUTTON_DEBOUNCE_MS 50
+// How many samples the debounce shift register should compare
+#define BUTTON_SAMPLES 4
 // Set PIN_NEUTRAL_LED to 0 if no LED
 #define PIN_NEUTRAL_LED 15
 
@@ -22,6 +24,8 @@
 #define WDT_TIMEOUT 5
 
 // gearbox defaults
+// How long a button needs to be pressed to be counted as an action in ms
+#define DEFAULT_MINIMUM_BUTTON_PRESS_TIME 80
 #define DEFAULT_UpDegrees 200
 #define DEFAULT_NeutralDegrees 130
 #define DEFAULT_MidPointDegrees 95
