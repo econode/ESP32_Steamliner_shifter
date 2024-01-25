@@ -22,8 +22,7 @@ pButton::pButton(uint8_t pin, uint8_t pin_mode, uint8_t min_samples) {
 
 void pButton::poll(){
     // Button debounce through shift register
-    // We have to have 8 consecutive reads for a state change based on a 10ms poll = 80ms debounce time.
-    uint8_t shiftBefore = _shiftRegister;
+    // We have to have X consecutive reads for a state change based on a 10ms poll = X * 10ms debounce time.
     _shiftRegister = ( ( _shiftRegister << 1 ) | digitalRead(_pin) ) & _shiftRegisterMask;
     if( _shiftRegister == 0x00 && _thisState==true ){ // We've just been pressed
         _lastPressedEpoch = millis();
