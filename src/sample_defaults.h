@@ -36,6 +36,7 @@
 // How long to  hold the up button when in first for neutral selection
 #define DEFAULT_NeutralPressTime 750
 
+
 // Servo parameters
 // This needs to match the servo
 // For SG90 Servo 50Hz Min pulse 500 MAx pulse 2400
@@ -44,5 +45,7 @@
 #define SERVO_MAXIMUM_PULSE_WIDTH 2400
 // Delay in milliseconds to allow the servo to move into position
 #define SERVO_SETTLE_TIME 100
+// Disable the servo afer X ms, 0 = disable idle timer
+#define DEFAULT_SERVO_IDLE_TIMER 3000
 
 #endif

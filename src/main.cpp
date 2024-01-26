@@ -42,6 +42,9 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
 void wsOnEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
 void taskButtonLoop( void *pvParamaters );
+void servo_move(uint16_t position );
+void servo_attach();
+void servo_detach();
 TaskHandle_t Task1;
 
 const char* wifi_ssid = WIFI_SSID;
@@ -75,6 +78,7 @@ struct shifterState_t {
   uint16_t holdDelay;
   uint16_t neutralPressTime;
   uint8_t currentGearPositonId = 2; // Gear positon #2 = neutral
+  time_t lastServoMoveEpoch = 0;
 };
 shifterState_t volatile shifterState;
 
@@ -186,9 +190,9 @@ void wsSendGearUpdate(uint16_t pressedTime){
 
 void checkGearChange(uint16_t upPressed,uint16_t downPressed){
   if( downPressed>DEFAULT_MINIMUM_BUTTON_PRESS_TIME ){
-    myservo.write(shifterState.downDegrees);
+    servo_move(shifterState.downDegrees);
     delay(shifterState.holdDelay);
-    myservo.write(shifterState.midPointDegrees);
+    servo_move(shifterState.midPointDegrees);
     if( shifterState.currentGearPositonId > 1 ){
       shifterState.currentGearPositonId--;
     }
@@ -203,9 +207,9 @@ void checkGearChange(uint16_t upPressed,uint16_t downPressed){
 
   // Check to see if we are in first and need to shift to neutral
   if( upPressed>shifterState.neutralPressTime && shifterState.currentGearPositonId==1 ){
-    myservo.write(shifterState.neutralDegrees);
+    servo_move(shifterState.neutralDegrees);
     delay(shifterState.holdDelay);
-    myservo.write(shifterState.midPointDegrees);
+    servo_move(shifterState.midPointDegrees);
     shifterState.currentGearPositonId++;
     Serial.printf("Change from 1st to neutral, do half shift button press time:%d servo pos:%d\n",upPressed,shifterState.neutralDegrees);
     wsSendGearUpdate(upPressed);
@@ -213,9 +217,10 @@ void checkGearChange(uint16_t upPressed,uint16_t downPressed){
   }
 
   if( upPressed>DEFAULT_MINIMUM_BUTTON_PRESS_TIME ){
-    myservo.write(shifterState.upDegrees);
+    
+    servo_move(shifterState.upDegrees);
     delay(shifterState.holdDelay);
-    myservo.write(shifterState.midPointDegrees);
+    servo_move(shifterState.midPointDegrees);
     if( shifterState.currentGearPositonId <= 6 ){
       if( shifterState.currentGearPositonId == 1 ){
         // We shift pass neutral
@@ -322,6 +327,32 @@ void taskButtonLoop( void *pvParamaters ){
   }
 }
 
+void servo_attach(){
+    // Allow allocation of all timers
+	ESP32PWM::allocateTimer(0);
+	ESP32PWM::allocateTimer(1);
+	ESP32PWM::allocateTimer(2);
+	ESP32PWM::allocateTimer(3);
+	myservo.setPeriodHertz(SERVO_FREQUENCY_HZ);    // standard 50 hz servo
+	myservo.attach(PIN_SHIFTER_SERVO, SERVO_MINIMUM_PULSE_WIDTH, SERVO_MAXIMUM_PULSE_WIDTH); // 500 - 2400 for 9G SG90
+}
+
+void servo_detach(){
+  if( myservo.attached() ){
+    myservo.detach();
+  }
+}
+
+void servo_move(uint16_t position ){
+  shifterState.lastServoMoveEpoch = millis();
+  if( !myservo.attached() ){
+    servo_attach();
+  }
+  myservo.write(position);
+}
+
+
+
 void setup(){
   esp_task_wdt_init(WDT_TIMEOUT, true);
   esp_task_wdt_add(NULL);
@@ -338,15 +369,9 @@ void setup(){
     return;
   }
 
-  // Allow allocation of all timers
-	ESP32PWM::allocateTimer(0);
-	ESP32PWM::allocateTimer(1);
-	ESP32PWM::allocateTimer(2);
-	ESP32PWM::allocateTimer(3);
-	myservo.setPeriodHertz(50);    // standard 50 hz servo
-	myservo.attach(PIN_SHIFTER_SERVO, SERVO_MINIMUM_PULSE_WIDTH, SERVO_MAXIMUM_PULSE_WIDTH); // 500 - 2400 for 9G SG90
-  myservo.write(shifterState.midPointDegrees);
+  servo_move(shifterState.midPointDegrees);
   shifterState.currentGearPositonId = 2; // Assume neutral on start
+
   wsSendGearUpdate(0);
   #ifdef WIFI_PASSWORD
     WiFi.softAP(wifi_ssid,wifi_password);
@@ -374,5 +399,12 @@ void loop(){
   esp_task_wdt_reset();
   dnsServer.processNextRequest();
   checkGearChange(upPressed,downPressed);
+  if( DEFAULT_SERVO_IDLE_TIMER > 0 ){
+    //
+    time_t servoRunTime = millis() - shifterState.lastServoMoveEpoch;
+    if( servoRunTime >  DEFAULT_SERVO_IDLE_TIMER ){
+      servo_detach();
+    }
+  }
   delay(50);
 }
