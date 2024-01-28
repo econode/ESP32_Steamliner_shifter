@@ -189,6 +189,16 @@ void wsSendGearUpdate(uint16_t pressedTime){
 }
 
 void checkGearChange(uint16_t upPressed,uint16_t downPressed){
+  // Check to see if we are in second and need to shift to neutral
+  if( downPressed>shifterState.neutralPressTime && shifterState.currentGearPositonId==3 ){
+    servo_move(shifterState.neutralDegrees);
+    delay(shifterState.holdDelay);
+    servo_move(shifterState.midPointDegrees);
+    shifterState.currentGearPositonId--;
+    Serial.printf("Change from 2nd to neutral, do half shift button press time:%d servo pos:%d\n",downPressed,shifterState.neutralDegrees);
+    wsSendGearUpdate(downPressed);
+    return;
+  }
   if( downPressed>DEFAULT_MINIMUM_BUTTON_PRESS_TIME ){
     servo_move(shifterState.downDegrees);
     delay(shifterState.holdDelay);
